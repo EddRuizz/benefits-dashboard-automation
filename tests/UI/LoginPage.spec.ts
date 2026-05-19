@@ -1,7 +1,8 @@
 import { test, expect } from '@playwright/test';
 import { LoginPage } from '../../pages/login-page';
+import { testUser } from '../../data/users';
 
-test('Login Page', async ({ page }) => {
+test('Login Page', async ({ page }, testInfo) => {
 
   // Create Login Page object
   const loginPage = new LoginPage(page);
@@ -17,13 +18,26 @@ test('Login Page', async ({ page }) => {
 
   // Login
   await loginPage.login(
-    'customer@practicesoftwaretesting.com',
-    'welcome01'
+    testUser.email,
+    testUser.password
   );
 
   // Validate login success
   await expect(
-    page.locator('[data-test="welcome-message"]')
-  ).toHaveText('Welcome, user!');
+  page.locator('[data-test="page-title"]')
+  ).toHaveText('My account');
+
+test.afterEach(async ({ page }, testInfo) => {
+
+  if (testInfo.status !== testInfo.expectedStatus) {
+
+    await testInfo.attach('failure-screenshot', {
+      body: await page.screenshot(),
+      contentType: 'image/png'
+    });
+
+  }
+
+});
 
 });
